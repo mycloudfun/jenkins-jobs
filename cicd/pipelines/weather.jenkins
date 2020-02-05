@@ -1,0 +1,68 @@
+#!/usr/bin/env groovy
+
+def label = "display-weather-${UUID.randomUUID().toString()}"
+def home = "/home/jenkins"
+
+podTemplate(label: label,
+        containers: [
+                containerTemplate(name: 'jnlp', image: 'jenkins/jnlp-slave:alpine'),
+                containerTemplate(name: 'jobs', image: 'mycloudfun/jenkins-jobs:1.0', command: '/bin/pause', ttyEnabled: true),
+        ],
+        ) {
+
+  node(label) {
+    container('jobs') {
+      stage('Init') {
+        dir('kubernetes-fundamentals') {
+          git(
+            url: 'https://github.com/mycloudfun/kubernetes-fundamentals.git',
+            branch: 'master'
+          )
+        }
+      }
+      stage('List Files') {
+        dir('kubernetes-fundamentals') {
+          sh '''
+            ls -la
+          '''
+        }
+      }
+      stage('Execute Script') {
+        dir('kubernetes-fundamentals/exercise-14') {
+          sh '''
+            ./weather.sh
+          '''
+        }
+      }
+    }
+  }
+}
+
+//  node(label) {
+//      dir(workdir) {
+//          stage('Checkout') {
+//            container('jobs') {
+//              dir('kubernetes-fundamentals') {
+//                git(
+//                  url: 'https://github.com/mycloudfun/kubernetes-fundamentals.git'
+//                )
+//              }
+//            }
+//          } 
+//          stage('Display files') {
+//              container('jobs') {
+//                sh """
+//                  ls -la
+//                  pwd
+//                """
+//              }
+//          }
+//          stage('Display wheather') {
+//              container('jobs') {
+//                apk add tree
+//                tree
+//              }
+//          }
+//      }
+//  }
+//}

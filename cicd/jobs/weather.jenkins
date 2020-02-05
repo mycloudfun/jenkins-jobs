@@ -1,0 +1,18 @@
+#!/usr/bin/env groovy
+
+pipelineJob('display-weather') {
+    displayName('Display Weather in Warsaw')
+    definition {
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://github.com/mycloudfun/jenkins-jobs.git')
+                    }
+                    branches('*/master')
+                }
+            }
+            scriptPath('cicd/pipelines/weather.jenkins')
+        }
+    }
+}
